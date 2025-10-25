@@ -9,6 +9,7 @@ LABEL mantainer="Adrian Kriel <admin@extremeshok.com>" vendor="eXtremeSHOK.com"
 USER root
 
 ARG DEBIAN_FRONTEND=noninteractive
+ARG PHP_VERSION=74
 
 RUN echo "**** Install packages ****" \
   && apt-install \
@@ -18,47 +19,59 @@ RUN echo "**** Install packages ****" \
   sudo \
   vim-tiny
 
-RUN echo "**** Install PHP7.4 ****" \
+RUN echo "**** Install PHP${PHP_VERSION} ****" \
   && apt-install \
-  lsphp74-apcu \
-  lsphp74-common \
-  lsphp74-curl \
-  lsphp74-dev \
-  lsphp74-igbinary \
-  lsphp74-imagick  \
-  lsphp74-imap \
-  lsphp74-intl \
-  lsphp74-json \
-  lsphp74-ldap- \
-  lsphp74-memcached \
-  lsphp74-modules-source- \
-  lsphp74-msgpack \
-  lsphp74-mysql \
-  lsphp74-opcache \
-  lsphp74-pear \
-  lsphp74-pgsql- \
-  lsphp74-pspell- \
-  lsphp74-redis \
-  lsphp74-snmp- \
-  lsphp74-sqlite3 \
-  lsphp74-sybase- \
-  lsphp74-tidy-
+  lsphp${PHP_VERSION}-apcu \
+  lsphp${PHP_VERSION}-common \
+  lsphp${PHP_VERSION}-curl \
+  lsphp${PHP_VERSION}-dev \
+  lsphp${PHP_VERSION}-igbinary \
+  lsphp${PHP_VERSION}-imagick  \
+  lsphp${PHP_VERSION}-imap \
+  lsphp${PHP_VERSION}-intl \
+  lsphp${PHP_VERSION}-json \
+  lsphp${PHP_VERSION}-ldap- \
+  lsphp${PHP_VERSION}-memcached \
+  lsphp${PHP_VERSION}-modules-source- \
+  lsphp${PHP_VERSION}-msgpack \
+  lsphp${PHP_VERSION}-mysql \
+  lsphp${PHP_VERSION}-opcache \
+  lsphp${PHP_VERSION}-pear \
+  lsphp${PHP_VERSION}-pgsql- \
+  lsphp${PHP_VERSION}-pspell- \
+  lsphp${PHP_VERSION}-redis \
+  lsphp${PHP_VERSION}-snmp- \
+  lsphp${PHP_VERSION}-sqlite3 \
+  lsphp${PHP_VERSION}-sybase- \
+  lsphp${PHP_VERSION}-tidy-
 ## not available for php7.4
 # lsphp74-ioncube
 
-RUN echo "**** Default to PHP7.4 and create symbolic links ****" \
+RUN echo "**** Default to PHP${PHP_VERSION} and create symbolic links ****" \
   && rm -f /usr/bin/php \
   && rm -f /usr/local/lsws/fcgi-bin/lsphp \
-  && ln -s /usr/local/lsws/lsphp74/bin/php /usr/bin/php \
-  && ln -s /usr/local/lsws/lsphp74/bin/lsphp /usr/local/lsws/fcgi-bin/lsphp
+  && ln -s /usr/local/lsws/lsphp${PHP_VERSION}/bin/php /usr/bin/php \
+  && ln -s /usr/local/lsws/lsphp${PHP_VERSION}/bin/lsphp /usr/local/lsws/fcgi-bin/lsphp
+
+# Determine PHP major.minor version for config paths
+RUN echo "**** Determine PHP version string ****" \
+  && if [ "${PHP_VERSION}" = "74" ]; then export PHP_VER_STR="7.4"; \
+  elif [ "${PHP_VERSION}" = "80" ]; then export PHP_VER_STR="8.0"; \
+  elif [ "${PHP_VERSION}" = "81" ]; then export PHP_VER_STR="8.1"; \
+  elif [ "${PHP_VERSION}" = "82" ]; then export PHP_VER_STR="8.2"; \
+  elif [ "${PHP_VERSION}" = "83" ]; then export PHP_VER_STR="8.3"; \
+  else export PHP_VER_STR="7.4"; fi \
+  && echo "export PHP_VERSION=${PHP_VERSION}" >> /etc/environment \
+  && echo "export PHP_VER_STR=${PHP_VER_STR}" >> /etc/environment
 
 RUN echo "**** Create symbolic links for /etc/php ****" \
+  && . /etc/environment \
   && rm -rf /etc/php \
   && mkdir -p /etc/php \
-  && rm -rf /usr/local/lsws/lsphp74/etc/php/7.4 \
-  && mkdir -p /usr/local/lsws/lsphp74/etc/php/7.4 \
-  && ln -s /etc/php/litespeed /usr/local/lsws/lsphp74/etc/php/7.4/litespeed \
-  && ln -s /etc/php/mods-available /usr/local/lsws/lsphp74/etc/php/7.4/mods-available
+  && rm -rf /usr/local/lsws/lsphp${PHP_VERSION}/etc/php/${PHP_VER_STR} \
+  && mkdir -p /usr/local/lsws/lsphp${PHP_VERSION}/etc/php/${PHP_VER_STR} \
+  && ln -s /etc/php/litespeed /usr/local/lsws/lsphp${PHP_VERSION}/etc/php/${PHP_VER_STR}/litespeed \
+  && ln -s /etc/php/mods-available /usr/local/lsws/lsphp${PHP_VERSION}/etc/php/${PHP_VER_STR}/mods-available
 
 RUN echo "**** Fix permissions ****" \
   && chown -R lsadm:lsadm /usr/local/lsws
@@ -70,14 +83,17 @@ RUN echo "**** Create error.log for php ****" \
 COPY rootfs/ /
 
 RUN echo "**** Test PHP has no warnings ****" \
-   && if /usr/local/lsws/lsphp74/bin/php -v | grep -q -i warning ; then /usr/local/lsws/lsphp74/bin/php -v ; exit 1 ; fi
+   && . /etc/environment \
+   && if /usr/local/lsws/lsphp${PHP_VERSION}/bin/php -v | grep -q -i warning ; then /usr/local/lsws/lsphp${PHP_VERSION}/bin/php -v ; exit 1 ; fi
 
 RUN echo "**** Test PHP has no errors ****" \
-   && if /usr/local/lsws/lsphp74/bin/php -v | grep -q -i error ; then /usr/local/lsws/lsphp74/bin/php -v ; exit 1 ; fi
+   && . /etc/environment \
+   && if /usr/local/lsws/lsphp${PHP_VERSION}/bin/php -v | grep -q -i error ; then /usr/local/lsws/lsphp${PHP_VERSION}/bin/php -v ; exit 1 ; fi
 
 RUN echo "*** Backup PHP Configs ***" \
+  && . /etc/environment \
   && mkdir -p  /usr/local/lsws/default/php \
-  && cp -rf  /usr/local/lsws/lsphp74/etc/php/7.4/* /usr/local/lsws/default/php
+  && cp -rf  /usr/local/lsws/lsphp${PHP_VERSION}/etc/php/${PHP_VER_STR}/* /usr/local/lsws/default/php
 
 #When using Composer, disable the warning about running commands as root/super user
 ENV COMPOSER_ALLOW_SUPERUSER=1
