@@ -151,7 +151,7 @@ docker build -t openlitespeed-php74 .
 * redis
 * sqlite3
 
-### Note: ioncube ** not supported in php7.4+ **
+### Note: ioncube ** not supported in PHP 7.4+ **
 
 # Usage
 Place files in **/var/www/vhosts/fqdn.com/** , see example **/var/www/vhosts/localhost/**
