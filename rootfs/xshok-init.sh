@@ -8,6 +8,15 @@
 shopt -s nocaseglob
 
 ###### DEFAULTS ######
+# Load environment variables
+if [ -f /etc/environment ]; then
+  . /etc/environment
+fi
+
+# Set default PHP version if not set
+PHP_VERSION=${PHP_VERSION:-74}
+PHP_VER_STR=${PHP_VER_STR:-7.4}
+
 PHP_INI="/etc/php/litespeed/php.ini"
 ADDITIONAL_PHP_INI="/etc/php/mods-available/"
 

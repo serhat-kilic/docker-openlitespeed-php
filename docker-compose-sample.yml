@@ -3,7 +3,13 @@ version: '3.0'
 services:
 ###### xshok-openlitespeed-php
     openlitespeed:
+      # Use pre-built image
       image: extremeshok/openlitespeed-php:latest
+      # Or build from local Dockerfile with specific PHP version
+      # build:
+      #   context: .
+      #   args:
+      #     PHP_VERSION: 81  # Options: 74 (default), 80, 81, 82, 83
       shm_size:  128M
       depends_on:
         - redis

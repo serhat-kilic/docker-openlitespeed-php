@@ -1,5 +1,32 @@
 # docker-openlitespeed-php
-# eXtremeSHOK.com Docker OpenLiteSpeed with modsecurity and pagespeed and PHP 7.4 on Ubuntu LTS
+# eXtremeSHOK.com Docker OpenLiteSpeed with modsecurity and pagespeed and Multi-PHP support on Ubuntu LTS
+
+## Multi-PHP Support
+This Docker image now supports multiple PHP versions. You can build the image with your desired PHP version:
+
+### Available PHP Versions:
+* PHP 7.4 (lsphp74) - default
+* PHP 8.0 (lsphp80)
+* PHP 8.1 (lsphp81)
+* PHP 8.2 (lsphp82)
+* PHP 8.3 (lsphp83)
+
+### Building with a specific PHP version:
+```bash
+# Build with PHP 8.1
+docker build --build-arg PHP_VERSION=81 -t openlitespeed-php81 .
+
+# Build with PHP 8.2
+docker build --build-arg PHP_VERSION=82 -t openlitespeed-php82 .
+
+# Build with PHP 8.3
+docker build --build-arg PHP_VERSION=83 -t openlitespeed-php83 .
+
+# Build with default PHP 7.4
+docker build -t openlitespeed-php74 .
+```
+
+**Note:** JSON extension is built into PHP 8.0+ core. For PHP 7.4, it's installed as a separate package.
 
 ## Uses the base image extremeshok/openlitespeed : https://hub.docker.com/repository/docker/extremeshok/openlitespeed
 
@@ -30,7 +57,7 @@
 * default configs will be added if the config dir is empty
 * OWASP modsecurity rules enabled
 * Restart openlitespeed when changes to the vhost/domain.com/cert dirs are detected, ie ssl certificate is updated
-* PHP 7.4 (lsphp74)
+* Multi-PHP Support (7.4, 8.0, 8.1, 8.2, 8.3) - default is 7.4
 * Composer
 * PHPUnit
 * WP-CLI , (use comamnd ***wp*** , this will run wp-cli as the nobody user)
@@ -94,7 +121,8 @@
 * PHP_SMTP_PASS=securpassword
 
 # Notes:
- * PHP74 linked to /usr/bin/php and /usr/local/lsws/fcgi-bin/lsphp
+ * PHP version can be selected at build time using --build-arg PHP_VERSION=XX (74, 80, 81, 82, 83)
+ * Selected PHP version is linked to /usr/bin/php and /usr/local/lsws/fcgi-bin/lsphp
 
 # Included Modules:
 * cache
@@ -114,7 +142,7 @@
 * imagick
 * imap
 * intl
-* json
+* json (PHP 7.4 only, built-in for PHP 8.0+)
 * memcached
 * msgpack
 * mysql
@@ -123,7 +151,7 @@
 * redis
 * sqlite3
 
-### Note: ioncube ** not supported in php7.4 **
+### Note: ioncube ** not supported in PHP 7.4+ **
 
 # Usage
 Place files in **/var/www/vhosts/fqdn.com/** , see example **/var/www/vhosts/localhost/**
