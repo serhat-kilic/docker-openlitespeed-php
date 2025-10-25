@@ -26,6 +26,8 @@ docker build --build-arg PHP_VERSION=83 -t openlitespeed-php83 .
 docker build -t openlitespeed-php74 .
 ```
 
+**Note:** JSON extension is built into PHP 8.0+ core. For PHP 7.4, it's installed as a separate package.
+
 ## Uses the base image extremeshok/openlitespeed : https://hub.docker.com/repository/docker/extremeshok/openlitespeed
 
 ## Checkout our optimized production web-server setup based on docker https://github.com/extremeshok/docker-webserver
@@ -140,7 +142,7 @@ docker build -t openlitespeed-php74 .
 * imagick
 * imap
 * intl
-* json
+* json (PHP 7.4 only, built-in for PHP 8.0+)
 * memcached
 * msgpack
 * mysql
@@ -149,7 +151,7 @@ docker build -t openlitespeed-php74 .
 * redis
 * sqlite3
 
-### Note: ioncube ** not supported in php7.4 **
+### Note: ioncube ** not supported in php7.4+ **
 
 # Usage
 Place files in **/var/www/vhosts/fqdn.com/** , see example **/var/www/vhosts/localhost/**

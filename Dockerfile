@@ -20,16 +20,14 @@ RUN echo "**** Install packages ****" \
   vim-tiny
 
 RUN echo "**** Install PHP${PHP_VERSION} ****" \
-  && apt-install \
-  lsphp${PHP_VERSION}-apcu \
+  && PACKAGES="lsphp${PHP_VERSION}-apcu \
   lsphp${PHP_VERSION}-common \
   lsphp${PHP_VERSION}-curl \
   lsphp${PHP_VERSION}-dev \
   lsphp${PHP_VERSION}-igbinary \
-  lsphp${PHP_VERSION}-imagick  \
+  lsphp${PHP_VERSION}-imagick \
   lsphp${PHP_VERSION}-imap \
   lsphp${PHP_VERSION}-intl \
-  lsphp${PHP_VERSION}-json \
   lsphp${PHP_VERSION}-ldap- \
   lsphp${PHP_VERSION}-memcached \
   lsphp${PHP_VERSION}-modules-source- \
@@ -43,9 +41,11 @@ RUN echo "**** Install PHP${PHP_VERSION} ****" \
   lsphp${PHP_VERSION}-snmp- \
   lsphp${PHP_VERSION}-sqlite3 \
   lsphp${PHP_VERSION}-sybase- \
-  lsphp${PHP_VERSION}-tidy-
-## not available for php7.4
-# lsphp74-ioncube
+  lsphp${PHP_VERSION}-tidy-" \
+  && if [ "${PHP_VERSION}" = "74" ]; then PACKAGES="${PACKAGES} lsphp${PHP_VERSION}-json"; fi \
+  && apt-install ${PACKAGES}
+## Note: json is built into PHP 8.0+, only PHP 7.4 has a separate json package
+## Note: ioncube not available for php7.4+
 
 RUN echo "**** Default to PHP${PHP_VERSION} and create symbolic links ****" \
   && rm -f /usr/bin/php \
