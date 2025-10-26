@@ -82,6 +82,11 @@ RUN echo "**** Create error.log for php ****" \
 
 COPY rootfs/ /
 
+RUN echo "**** Disable json.ini for PHP 8.0+ (json is built-in) ****" \
+  && if [ "${PHP_VERSION}" != "74" ]; then \
+    mv /etc/php/mods-available/json.ini /etc/php/mods-available/disabled/json.ini 2>/dev/null || true; \
+  fi
+
 RUN echo "**** Test PHP has no warnings ****" \
    && . /etc/environment \
    && if /usr/local/lsws/lsphp${PHP_VERSION}/bin/php -v | grep -q -i warning ; then /usr/local/lsws/lsphp${PHP_VERSION}/bin/php -v ; exit 1 ; fi
